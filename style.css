@@ -34,6 +34,7 @@ h6 {
 .top-title {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
 
@@ -49,6 +50,9 @@ h6 {
 .top-title-logo {
   height: 2rem;
   margin-right: 0.5rem;
+}
+.top-title > * {
+  flex-shrink: 0;
 }
 .top-subtitle {
   display: flex;

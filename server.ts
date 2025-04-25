@@ -128,12 +128,14 @@ function parseMealTime(description: string): MealTime {
           if (
             Temporal.PlainTime.compare(now.toPlainTime(), lunchEndTime) >= 0
           ) {
-            mealText = "晚上";
+            mealText ||= "晚上";
           } else {
-            mealText = "中午";
+            mealText ||= "中午";
           }
         }
       }
+    } else {
+      mealText ||= "中午";
     }
     const offset = relativeDateOffsetMap[relative];
     date = now.add({ days: offset }).toPlainDate();
@@ -185,6 +187,7 @@ export interface MenuSiteData {
 export type KindCode =
   | "KIND_SELF_SERVICE"
   | "KIND_SET_MEAL"
+  | "KIND_BREAKFAST_SELF_SERVICE"
   | "KIND_AFTERNOON_TEA";
 export interface FoodItem {
   additionalInfo: null;

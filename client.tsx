@@ -63,7 +63,11 @@ const Category = (props: { kind: SiteKind; sites: SiteProps[] }) => {
   const isMuslim =
     props.kind === SiteKind.SelfServiceMuslim ||
     props.kind === SiteKind.SetMealMuslim;
-  const sitesPerRow = isMuslim ? 1 : props.kind === SiteKind.SelfService ? props.sites.length : 4;
+  const sitesPerRow = isMuslim
+    ? 1
+    : props.kind === SiteKind.SelfService
+    ? props.sites.length
+    : 4;
   return (
     <div
       className="category-item"
@@ -130,7 +134,10 @@ const getSiteProps = (site: MenuSiteData): SiteProps => {
     kind = muslimSiteNames.includes(name)
       ? SiteKind.SetMealMuslim
       : SiteKind.SetMeal;
-  } else if (kindCode === "KIND_SELF_SERVICE") {
+  } else if (
+    kindCode === "KIND_SELF_SERVICE" ||
+    kindCode === "KIND_BREAKFAST_SELF_SERVICE"
+  ) {
     kind = muslimSiteNames.includes(name)
       ? SiteKind.SelfServiceMuslim
       : SiteKind.SelfService;
@@ -178,22 +185,17 @@ const App = () => {
         </ul>
       </h1>
       <div className="category-list">
-        <Category
-          kind={SiteKind.SetMeal}
-          sites={categories[SiteKind.SetMeal] ?? []}
-        />
-        <Category
-          kind={SiteKind.SetMealMuslim}
-          sites={categories[SiteKind.SetMealMuslim] ?? []}
-        />
-        <Category
-          kind={SiteKind.SelfService}
-          sites={categories[SiteKind.SelfService] ?? []}
-        />
-        <Category
-          kind={SiteKind.SelfServiceMuslim}
-          sites={categories[SiteKind.SelfServiceMuslim] ?? []}
-        />
+        {[
+          SiteKind.SetMeal,
+          SiteKind.SetMealMuslim,
+          SiteKind.SelfService,
+          SiteKind.SelfServiceMuslim,
+        ].map(
+          (kind) =>
+            categories[kind] && (
+              <Category key={kind} kind={kind} sites={categories[kind]} />
+            ),
+        )}
       </div>
     </>
   );
