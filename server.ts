@@ -207,18 +207,20 @@ const page = await browser.newPage();
 const server = Bun.serve({
   routes: {
     "/": indexHtml,
-    "/api/session_id": async (request) => {
-      const body = await request.json();
-      if (body && body.session_id) {
-        const sessionId = body.session_id;
-        db.exec(
-          `INSERT OR REPLACE INTO app_settings (id, session_id) VALUES (1, ?)`,
-          [sessionId],
-        );
-        return new Response("Session ID saved", { status: 200 });
-      } else {
-        return new Response("Invalid request", { status: 400 });
-      }
+    "/api/session_id": {
+      POST: async (request) => {
+        const body = await request.json();
+        if (body && body.session_id) {
+          const sessionId = body.session_id;
+          db.exec(
+            `INSERT OR REPLACE INTO app_settings (id, session_id) VALUES (1, ?)`,
+            [sessionId],
+          );
+          return new Response("Session ID saved", { status: 200 });
+        } else {
+          return new Response("Invalid request", { status: 400 });
+        }
+      },
     },
     "/api/menu": async (request) => {
       const query = new URL(request.url).searchParams.get("query") || "";
@@ -287,7 +289,6 @@ const server = Bun.serve({
 const homepage = `http://${server.hostname}:${server.port}`;
 await page.goto(homepage, { waitUntil: "networkidle0" });
 console.log(`Server running at ${homepage}`);
-
 
 process.on("exit", () => {
   browser.close();
