@@ -7,4 +7,4 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8012/api/menu?query=昨天 HTTP/1.1
+GET http://localhost:8012/api/menu?query=待会儿吃点啥 HTTP/1.1

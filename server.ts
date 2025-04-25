@@ -27,7 +27,7 @@ function parseMeal(meal: string): MealType {
 }
 
 const relativeDateRegex =
-  /^(?:(?<relative>大?前|昨|今|明|大?后)天?|(?<week>上|上上|下|下下|这|本)?个?(?:周|星期|礼拜)(?<weekday>一|二|三|四|五|六|日|天)|(?:(?:(?<year>\d{4})[-.年])?(?<month>\d{1,2})[-.月])?(?<date>\d{1,2})[日号]?)?(?<meal>早(?:上|饭|餐)?|中午|午(?:饭|餐)|晚(?:上|饭|餐)?|(?:待|过)会儿?|下顿)?(?<future>吃(?:什么|啥)[?？]?)?$/;
+  /^(?:(?<relative>大?前|昨|今|明|大?后)天?|(?<week>上|上上|下|下下|这|本)?个?(?:周|星期|礼拜)(?<weekday>一|二|三|四|五|六|日|天)|(?:(?:(?<year>\d{4})[-.年])?(?<month>\d{1,2})[-.月])?(?<date>\d{1,2})[日号]?|(?:待|过)会儿?|下顿)?(?<meal>早(?:上|饭|餐)?|中午|午(?:饭|餐)|晚(?:上|饭|餐)?)?(?<future>吃点?(?:什么|啥)(?:好呢?)?[?？]?)?$/;
 
 const weekOffsetMap: Record<string, number> = {
   上: -1,
@@ -138,7 +138,7 @@ function parseMealTime(description: string): MealTime {
     const offset = relativeDateOffsetMap[relative];
     date = now.add({ days: offset }).toPlainDate();
   }
-  mealText ||= "中午";
+  console.log(mealText);
   const meal = parseMeal(mealText);
   return { date, meal };
 }
