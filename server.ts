@@ -128,18 +128,17 @@ function parseMealTime(description: string): MealTime {
           if (
             Temporal.PlainTime.compare(now.toPlainTime(), lunchEndTime) >= 0
           ) {
-            mealText ||= "晚上";
+            mealText = "晚上";
           } else {
-            mealText ||= "中午";
+            mealText = "中午";
           }
         }
       }
-    } else {
-      mealText ||= "中午";
     }
     const offset = relativeDateOffsetMap[relative];
     date = now.add({ days: offset }).toPlainDate();
   }
+  mealText ||= "中午";
   const meal = parseMeal(mealText);
   return { date, meal };
 }
@@ -203,7 +202,9 @@ const dateFormat = Intl.DateTimeFormat("zh-CN", {
   dateStyle: "long",
 });
 
-const browser = await puppeteer.launch();
+const browser = await puppeteer.launch({
+  args: ["--no-sandbox", "--disable-setuid-sandbox"],
+});
 const page = await browser.newPage();
 
 const server = Bun.serve({
