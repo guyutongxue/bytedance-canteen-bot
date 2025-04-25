@@ -140,7 +140,6 @@ function parseMealTime(description: string): MealTime {
     const offset = relativeDateOffsetMap[relative];
     date = now.add({ days: offset }).toPlainDate();
   }
-  console.log(mealText);
   const meal = parseMeal(mealText);
   return { date, meal };
 }
