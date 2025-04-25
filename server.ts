@@ -287,3 +287,16 @@ const server = Bun.serve({
 const homepage = `http://${server.hostname}:${server.port}`;
 await page.goto(homepage, { waitUntil: "networkidle0" });
 console.log(`Server running at ${homepage}`);
+
+
+process.on("exit", () => {
+  browser.close();
+});
+
+["SIGINT", "SIGTERM", "SIGQUIT"].forEach((signal) => {
+  process.on(signal, () => {
+    browser.close().finally(() => {
+      process.exit(0);
+    });
+  });
+});
