@@ -1,0 +1,129 @@
+html,
+body {
+  margin: 0;
+}
+* {
+  box-sizing: border-box;
+}
+ul > li,
+ol > li {
+  list-style: none;
+}
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-size: unset;
+  font-weight: unset;
+}
+
+#root {
+  width: min-content;
+}
+
+.top-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  background-color: rgb(60, 140, 255);
+  color: white;
+
+  font-size: 1.75rem;
+  font-family: "Noto Sans", "Noto Sans CJK SC", "Segoe UI", Tahoma, Geneva,
+    Verdana, sans-serif;
+  padding: 1rem 2rem;
+  gap: 1rem;
+}
+.top-title-logo {
+  height: 2rem;
+  margin-right: 0.5rem;
+}
+.top-subtitle {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.category-list {
+  display: grid;
+
+  grid-template-columns: max-content max-content;
+  grid-template-rows: min-content min-content;
+  align-items: stretch;
+}
+
+.category-title {
+  height: 2rem;
+  display: flex;
+  align-items: start;
+
+  font-size: 4rem;
+  line-height: 3rem;
+  margin-left: -1rem;
+
+  font-weight: 900;
+  font-family: "Noto Serif", "Noto Serif CJK SC", Georgia, "Times New Roman",
+    Times, serif;
+  font-style: italic;
+
+  color: var(--list-background-color);
+}
+
+.category-item {
+  --solid-color: oklch(63.7% 0.13 var(--chroma));
+  --category-background-color: oklch(97% 0.013 var(--chroma));
+  --list-background-color: oklch(88.5% 0.062 var(--chroma));
+
+  overflow: hidden;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: var(--category-background-color);
+}
+
+.site-list {
+  flex: 1;
+
+  display: grid;
+  grid-template-columns: repeat(var(--sites-per-row, 1), 1fr);
+  grid-template-rows: repeat(auto-fill, 1fr);
+  gap: 0.5rem 0.25rem;
+}
+.site-item {
+  border-radius: 0.5rem;
+  border: var(--solid-color) 2px solid;
+  background-color: var(--list-background-color);
+}
+
+.site-title {
+  display: flex;
+  padding: 0.25rem 0.75rem;
+  align-items: center;
+  background-color: var(--solid-color);
+  border-radius: 9999px;
+  color: white;
+}
+.site-tag {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.food-list {
+}
+.food-item {
+  font-family: "Noto Emoji", emoji, "Noto Sans", "Noto Sans CJK SC", "Segoe UI",
+    Tahoma, Geneva, Verdana, sans-serif;
+}
