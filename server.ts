@@ -57,7 +57,7 @@ const relativeDateOffsetMap: Record<string, number> = {
   大后: 3,
 };
 
-function parseMealTime(description: string): MealTime {
+export const parseMealTime = (description: string): MealTime => {
   const now = Temporal.Now.zonedDateTimeISO();
 
   const match = relativeDateRegex.exec(description);
@@ -207,6 +207,56 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 
+export const getSessionId = (): string | undefined => sessionIdQuery.get()?.session_id;
+
+export const fetchMenu = async (
+  sessionId: string,
+  { date, meal }: MealTime,
+): Promise<MenuData> => {
+  const response = await fetch(
+    `https://aplus.bytedance.com/smartcanteen/app/mini-program/menu/detail/v3`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `session_id=${sessionId}`,
+        "X-Client-Type": "h5",
+      },
+      body: JSON.stringify({
+        buildingCode: "MDBD00000302",
+        timeCode: meal,
+        menuDate: date.toString(),
+      }),
+    },
+  );
+  const responseJson: MenuResponse = await response.json();
+  if (responseJson?.code !== 200) {
+    throw new Error(responseJson.message);
+  }
+  responseJson.data.date = dateFormat.format(date);
+  return responseJson.data;
+};
+
+export const renderMenuImage = async (menuData: MenuData): Promise<Uint8Array> => {
+  await page.evaluate(
+    (data) =>
+      window.dispatchEvent(
+        new CustomEvent("menuData", {
+          detail: data,
+        }),
+      ),
+    menuData,
+  );
+  await Bun.sleep(100);
+  return await page.$("#root").then((e) =>
+    e!.screenshot({
+      quality: 100,
+      optimizeForSpeed: true,
+      type: "webp",
+    }),
+  );
+};
+
 const server = Bun.serve({
   routes: {
     "/": indexHtml,
@@ -227,63 +277,31 @@ const server = Bun.serve({
     },
     "/api/menu": async (request) => {
       const query = new URL(request.url).searchParams.get("query") || "";
-      const { date, meal } = parseMealTime(query);
-      const sessionId = sessionIdQuery.get()?.session_id;
-      if (sessionId) {
-        const response = await fetch(
-          `https://aplus.bytedance.com/smartcanteen/app/mini-program/menu/detail/v3`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Cookie: `session_id=${sessionId}`,
-              "X-Client-Type": "h5",
-            },
-            body: JSON.stringify({
-              buildingCode: "MDBD00000302",
-              timeCode: meal,
-              menuDate: date.toString(),
-            }),
-          },
-        );
-        const responseJson: MenuResponse = await response.json();
-        if (responseJson?.code !== 200) {
-          return new Response(responseJson.message, { status: 502 });
-        }
-        responseJson.data.date = dateFormat.format(date);
-        if (request.headers.get("Accept")?.includes("application/json")) {
-          return new Response(JSON.stringify(responseJson), {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-        }
-        await page.evaluate(
-          (data) =>
-            window.dispatchEvent(
-              new CustomEvent("menuData", {
-                detail: data,
-              }),
-            ),
-          responseJson.data,
-        );
-        await Bun.sleep(100);
-        const image = await page.$("#root").then((e) =>
-          e!.screenshot({
-            quality: 100,
-            optimizeForSpeed: true,
-            type: "webp",
-          }),
-        );
-        return new Response(image, {
-          headers: {
-            "Content-Type": "image/webp",
-            // "Content-Disposition": `inline; filename="menu.webp"`,
-          },
-        });
-      } else {
+      const mealTime = parseMealTime(query);
+      const sessionId = getSessionId();
+      if (!sessionId) {
         return new Response("Session ID not found", { status: 412 });
       }
+      let menuData: MenuData;
+      try {
+        menuData = await fetchMenu(sessionId, mealTime);
+      } catch (error) {
+        return new Response(error?.message, { status: 502 });
+      }
+      if (request.headers.get("Accept")?.includes("application/json")) {
+        return new Response(JSON.stringify(menuData), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      }
+      const image = await renderMenuImage(menuData);
+      return new Response(image, {
+        headers: {
+          "Content-Type": "image/webp",
+          // "Content-Disposition": `inline; filename="menu.webp"`,
+        },
+      });
     },
     "/*": () => new Response("Not found", { status: 404 }),
   },
